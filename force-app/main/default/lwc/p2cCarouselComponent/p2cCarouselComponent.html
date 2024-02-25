@@ -1,0 +1,22 @@
+<template>
+    <lightning-card title="Parent to child non-primitive data communication">
+        <div class="slds-var-m-around_medium">
+            <div class="slds-size_3-of-4">
+                <div class="slds-box slds-box_x-small slds-text-align_center slds-m-around_x-small">Basic Carousel
+                    <lightning-carousel>
+                        <template for:each={carouselData} for:item="item"> 
+                            <lightning-carousel-image
+                            key={item.header}
+                            src={item.src}
+                            header={item.header}
+                            description={item.description}
+                            >
+                        
+                            </lightning-carousel-image>
+                        </template>
+                    </lightning-carousel>
+                </div>
+            </div>
+        </div>       
+    </lightning-card>        
+</template>

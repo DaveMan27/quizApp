@@ -1,0 +1,28 @@
+<template>
+    <lightning-card>
+        <table class="slds-table slds-table_bordered slds-border_left slds-border_right">
+            <thead>
+              <tr class="slds-line-height_reset">
+                <template for:each={reportFields} for:item="header" for:index="index">
+                    <th key={header} class="" scope="col">
+                        <div class="slds-truncate" title="Name">{header.fieldLabel}</div>
+                    </th>
+                </template>               
+                
+              </tr>
+            </thead>
+            <tbody>
+              <template for:each={groupList} for:item="broker" for:index="index">
+                <tr key={broker.index}>
+                  <td>{broker.fieldLabel}</td>
+                  <template for:each={broker.fieldDataList} for:item="properties" for:index="index">
+                    <c-row-component key={properties.index} properties={properties}></c-row-component>
+                  </template>
+                  
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          
+    </lightning-card>
+</template>

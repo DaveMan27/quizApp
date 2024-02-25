@@ -1,0 +1,58 @@
+<template>
+    <lightning-card>
+        <h2 id="element-with-table-label" class="slds-text-heading_medium slds-m-bottom_xx-small">Data table</h2>
+        
+        <table class="slds-table slds-table_cell-buffer slds-table_bordered" aria-labelledby="element-with-table-label other-element-with-table-label">
+            <thead>
+                <tr class="slds-line-height_reset">
+                    <template for:each={headerColumns} for:item="header" for:index="index">
+                        <th key={header.index} scope="col">
+                            <a onclick={handleSort} data-id={index}>
+                                <div class="slds-truncate" title={header.fieldLabel}>{header.fieldLabel}</div>
+                            </a>
+                        </th>
+                    </template>                                 
+                </tr>
+            </thead>
+            <tbody>
+
+                
+        <template if:true={showTable}>
+            <template for:each={outputArray} for:item="row" for:index="index" if:true={showTable}>
+                <tr key={row.index}>
+                    <template for:each={row} for:item="item" >
+                        
+                       <template if:true={item.isHyperLink}>
+                            <td key={item}>
+                                <a  href={item.url} target="_blank" class="slds-truncate" title={item}>{item.fieldLabel}</a>
+                            </td>
+                        </template>
+                        <template if:true={item.isEmail}>
+                            <td key={item}>
+                                <a  href={item.emailAddress} target="_blank" class="slds-truncate" title={item}>{item.fieldLabel}</a>
+                            </td>
+                        </template>
+                        <template if:true={item.status} >
+                            <td key={item}>{item.fieldLabel}</td>
+                        </template>                        
+                    </template>
+                </tr>
+            </template>
+        </template>
+        
+            
+            
+            
+            </tbody>
+            </table>
+            <div style="float: right;">
+                <button style="margin-right: 10px;" onclick={prevPage} disabled={disabledPrev}>
+                    <lightning-icon icon-name="utility:chevronleft"></lightning-icon>
+                </button>
+                <button onclick={nextPage} disabled={disabledNext}>
+                    <lightning-icon icon-name="utility:chevronright"></lightning-icon>
+                </button>
+            </div>
+            <div>{currentPage}/{totalPages}</div>
+    </lightning-card>
+</template>

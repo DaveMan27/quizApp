@@ -1,0 +1,7 @@
+.toastMessage {
+    white-space: break-spaces !important;
+}
+
+.slds-notify__content > slot{
+    white-space: break-spaces !important;
+}

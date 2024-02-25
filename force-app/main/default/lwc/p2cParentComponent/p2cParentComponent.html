@@ -1,0 +1,35 @@
+<template>
+    <c-p2c-alert-component 
+        message="Received data. Good job!"
+        card-heading="Primitive data communication">
+    </c-p2c-alert-component>
+    
+    
+    <!-- Complex Data -->
+    <div class="slds-var-m-bottom_medium"></div>
+    <c-p2c-carousel-component carousel-data={carouselData}></c-p2c-carousel-component>
+
+    <!-- Passing data on an action -->
+    <div class="slds-var-m-bottom_medium"></div>
+    <lightning-card title="Parent to child through an action">
+        <div class="slds-var-m-around_medium">
+            <lightning-input type="number" placeholder="Enter percentage" onkeyup={changeHandler} value={percentage}></lightning-input>
+            <div class="slds-var-m-bottom_medium"></div>
+            <c-p2c-progress-component
+                progress-value={percentage}
+            ></c-p2c-progress-component>
+        </div>
+    </lightning-card>
+    
+    
+    <div class="slds-var-m-bottom_medium"></div>
+
+    
+    <lightning-button variant="brand" label="Reset Slider" title="Primary action" onclick={handleClick}> </lightning-button>
+    
+    <div class="slds-var-m-bottom_medium"></div>
+
+    <c-p2c-slider-component></c-p2c-slider-component>
+
+
+</template>

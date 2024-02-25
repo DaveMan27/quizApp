@@ -1,0 +1,49 @@
+<template>
+    <div class="slds-m-around_medium">
+        <lightning-card  title="2 Way data binding">        
+            <div class="slds-m-around_medium">
+                <lightning-input 
+                    type="text"
+                    label="Enter title name" 
+                    onkeyup={changeHandler}>
+                </lightning-input>
+                <div>{fullname} is {title}</div>
+            </div>               
+        </lightning-card>
+    </div>
+    
+    <div class="slds-m-around_medium">
+        <lightning-card  title="@Track properties">        
+            <div class="slds-m-around_medium">
+                <lightning-input 
+                    type="text"
+                    label="Enter title name" 
+                    onkeyup={trackHandler}>
+                </lightning-input>
+                <div>{address.city} is my city</div>
+            </div>               
+        </lightning-card>
+    </div>
+
+    <div class="slds-m-around_medium">
+        <lightning-card  title="Getter Demo">        
+            <div class="slds-m-around_medium">
+                <div>First name is {firstUser}</div>
+                <div>Product of {num1} and {num2} is {multiply}</div>
+            </div>               
+        </lightning-card>
+    </div>
+
+    <div class="slds-m-around_medium">
+        <lightning-card  title="Conditional Rendering">        
+            <div class="slds-m-around_medium">
+                <lightning-button variant="brand" label="Toggle Text" title="Primary action" onclick={toggleText} class="slds-m-left_x-small"></lightning-button>
+                <template if:true={isVisible}>
+                    <div>This is the text</div>
+                </template>
+                
+            </div>               
+        </lightning-card>
+    </div>
+    
+</template>

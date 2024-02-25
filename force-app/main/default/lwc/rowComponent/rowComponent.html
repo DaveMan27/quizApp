@@ -1,0 +1,24 @@
+<template>
+    <table>
+        <template for:each={properties} for:item="property" for:index="index">
+            <tr key={property.index}>
+                <td>{property.fieldLabel}</td>
+            </tr>            
+        </template>
+    </table>   
+</template>
+
+
+<!-- <template for:each={row.fieldDataList} for:item="item" for:index="index">
+    <tr key={row.fieldDataList}>
+        <template for:each={item} for:item="row">
+            <td key={row}>{row.fieldLabel}</td>
+        </template>
+    </tr>
+</template> -->
+
+<!-- <template for:each={groupList} for:item="object">
+    <tr key={object.fieldLabel}>
+        
+    </tr>
+</template> -->

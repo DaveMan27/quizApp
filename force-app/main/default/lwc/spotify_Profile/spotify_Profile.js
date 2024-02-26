@@ -2,6 +2,7 @@ import { LightningElement, track } from 'lwc';
 import getUserProfile from '@salesforce/apex/Spotify_lwcController.getUserProfile';
 import getUserPlaylists from '@salesforce/apex/Spotify_lwcController.getUserPlaylists';
 import openPlaylist from '@salesforce/apex/Spotify_lwcController.openPlaylist';
+import getPlaylistTracks from '@salesforce/apex/Spotify_lwcController.getPlaylistTracks';
 
 export default class Spotify_Profile extends LightningElement {
 
@@ -9,6 +10,13 @@ export default class Spotify_Profile extends LightningElement {
            userPlaylists           = {};
     @track simplifiedPlaylistArray = [];
            showPlaylists           = false;
+           showTracks              = false;
+    @track simplifiedTrackArray    = [];
+    
+    
+    
+    
+    
     
     columns = [
         { label: 'Name', fieldName: 'name' },
@@ -58,12 +66,29 @@ export default class Spotify_Profile extends LightningElement {
         console.log(`Clicked item ID: ${itemId}`);
         try {
             let playlist = await openPlaylist({ playListID: itemId });
-            playlist = JSON.parse(playlist);
+                playlist = JSON.parse(playlist);
             console.log('Opening playlist: ', playlist);
+            let tracksList = await getPlaylistTracks({ playListID: itemId });
+                tracksList = JSON.parse(tracksList);
+            if (tracksList.total > 0) {
+                this.simplifiedTrackArray = tracksList.items.map(item => ({
+                    name: item.track.name,
+                    artists: item.track.artists.map(artist => artist.name),
+                    album: item.track.album.name
+                }));
+
+                this.showTracks = true;
+                console.log(JSON.parse(JSON.stringify(this.simplifiedTrackArray)));
+            }
+            console.log('Tracks: ', tracksList);
         } catch (error) {
             console.error('Error getting user profile', error);
         }
     }
+
+    
+
+
 
 
 

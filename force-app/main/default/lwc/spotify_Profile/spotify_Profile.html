@@ -1,4 +1,25 @@
 <template>
-    <lightning-button variant = "brand-outline" label = "Brand Outline" title = "Primary action with lighter look" onclick = {handleCallout} class = "slds-m-left_x-small"></lightning-button>
+    <lightning-button variant = "brand-outline" label = "Get Profile" title   = "Primary action with lighter look" onclick = {handleGetProfile} class    = "slds-m-left_x-small"></lightning-button>
+    <lightning-button variant = "brand-outline" label = "Get Playlists" title = "Primary action with lighter look" onclick = {handleGetPlaylists} class  = "slds-m-left_x-small"></lightning-button>
+    <!-- <lightning-button variant = "brand-outline" label = "Get Albums" title    = "Primary action with lighter look" onclick = {handleGetUserAlbums} class = "slds-m-left_x-small"></lightning-button> -->
+   
+    <template if:true={showPlaylists}>
+        <table>
+            <thead>
+                <tr>                
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <template for:each = {simplifiedPlaylistArray} for:item = "item">
+                <tr       key      = {item.id} onclick                  = {handlePlaylistClick} data-id = {item.id}>
+                        <td>{item.name}</td>
+                    </tr>
+                </template>
+            </tbody>
+        </table>
+    </template>
+    
+    
 
 </template>

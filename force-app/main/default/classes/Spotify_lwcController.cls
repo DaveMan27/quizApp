@@ -14,8 +14,9 @@ public class Spotify_lwcController {
         return apiResponse.getBody();
     }
 
+    @AuraEnabled(cacheable=true)
     public static string openPlaylist(string playListID) {
-        HttpResponse apiResponse = Spotify_Utility.calloutHandler('users/playlists/' + playListID);
+        HttpResponse apiResponse = Spotify_Utility.calloutHandler('playlists/' + playListID);
         system.debug('apiResponse: ' + apiResponse);
         return apiResponse.getBody();
     }

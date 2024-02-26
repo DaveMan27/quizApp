@@ -1,13 +1,14 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, track } from 'lwc';
 import getUserProfile from '@salesforce/apex/Spotify_lwcController.getUserProfile';
 import getUserPlaylists from '@salesforce/apex/Spotify_lwcController.getUserPlaylists';
+import openPlaylist from '@salesforce/apex/Spotify_lwcController.openPlaylist';
 
 export default class Spotify_Profile extends LightningElement {
 
-    userProfile             = {};
-    userPlaylists           = {};
-    simplifiedPlaylistArray = [];
-    showPlaylists            = false;
+           userProfile             = {};
+           userPlaylists           = {};
+    @track simplifiedPlaylistArray = [];
+           showPlaylists           = false;
     
     columns = [
         { label: 'Name', fieldName: 'name' },
@@ -46,16 +47,25 @@ export default class Spotify_Profile extends LightningElement {
         this.simplifiedPlaylistArray = this.userPlaylists.items.map(playlist => ({
             link: playlist.href,
             name: playlist.name,
-            id: playlist.snapshot_id,
+            id: playlist.id,
             image: playlist.images[0].url
         }))
         console.log(this.simplifiedPlaylistArray);
     }
 
-    handlePlaylistClick(event) {
-        const itemId = event.currentTarget.dataset.id;
+    async handlePlaylistSelect(event) {
+        const itemId = event.detail;
         console.log(`Clicked item ID: ${itemId}`);
+        try {
+            let playlist = await openPlaylist({ playListID: itemId });
+            playlist = JSON.parse(playlist);
+            console.log('Opening playlist: ', playlist);
+        } catch (error) {
+            console.error('Error getting user profile', error);
+        }
     }
+
+
 
    
 

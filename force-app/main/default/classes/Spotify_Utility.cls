@@ -29,7 +29,7 @@ public class Spotify_Utility {
         HttpResponse        res           = new HttpResponse();
         Http                http          = new Http();
         Spotify_Config__mdt spotifyConfig = Spotify_Config__mdt.getInstance('Config_Settings');
-        string              url      = string.valueOf(spotifyConfig.get('API_Endpoint__c'));
+        string              url           = string.valueOf(spotifyConfig.get('API_Endpoint__c'));
         
         req.setHeader('Authorization', 'Bearer ' + accessToken);
         req.setMethod('GET');

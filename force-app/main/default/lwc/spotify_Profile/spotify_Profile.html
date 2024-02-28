@@ -5,6 +5,12 @@
     <template if:true={showPlaylists}>
         <c-spotify-playlist-table playlists={simplifiedPlaylistArray} onplaylistselect={handlePlaylistSelect}></c-spotify-playlist-table>
     </template>
+
+    <template if:true={showTracks}>
+        <c-spotify-tracks-list tracks={simplifiedTrackArray}></c-spotify-tracks-list>
+    </template>
+
+
     
     
 

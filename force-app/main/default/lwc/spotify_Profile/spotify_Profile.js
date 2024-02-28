@@ -13,11 +13,6 @@ export default class Spotify_Profile extends LightningElement {
            showTracks              = false;
     @track simplifiedTrackArray    = [];
     
-    
-    
-    
-    
-    
     columns = [
         { label: 'Name', fieldName: 'name' },
         { label: 'Link', fieldName: 'link', type: 'url' }        
@@ -62,6 +57,7 @@ export default class Spotify_Profile extends LightningElement {
     }
 
     async handlePlaylistSelect(event) {
+        this.showTracks = false;
         const itemId = event.detail;
         console.log(`Clicked item ID: ${itemId}`);
         try {
@@ -72,8 +68,9 @@ export default class Spotify_Profile extends LightningElement {
                 tracksList = JSON.parse(tracksList);
             if (tracksList.total > 0) {
                 this.simplifiedTrackArray = tracksList.items.map(item => ({
-                    name: item.track.name,
+                    name   : item.track.name,
                     artists: item.track.artists.map(artist => artist.name),
+                    artists_nonArray : item.track.artists.map(artist => artist.name).join(', '),
                     album: item.track.album.name
                 }));
 

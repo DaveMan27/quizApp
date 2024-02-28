@@ -28,6 +28,13 @@ public class Spotify_lwcController {
         return apiResponse.getBody();
     }
 
+    @AuraEnabled(cacheable=true)
+    public static string getTrackAudioFeatures(string trackID) {
+        HttpResponse apiResponse = Spotify_Utility.calloutHandler('audio-features/' + trackID);
+        system.debug('apiResponse: ' + apiResponse);
+        return apiResponse.getBody();
+    }
+
 
 
     /*@AuraEnabled(cacheable=true)

@@ -8,13 +8,15 @@ import getMultiTrackAudioFeatures from '@salesforce/apex/Spotify_lwcController.g
 
 export default class Spotify_Profile extends LightningElement {
 
-    userProfile = {};     // Stores user profile information
-    userPlaylists = {};     // Stores user playlists information
+           userProfile             = {};     // Stores user profile information
+           userPlaylists           = {};     // Stores user playlists information
     @track simplifiedPlaylistArray = [];     // Tracks changes to the playlist array for reactivity
-    showPlaylists = false;  // Controls the visibility of playlist UI section
-    showTracks = false;  // Controls the visibility of tracks UI section
-    @track simplifiedTrackArray = [];     // Tracks changes to the track array for reactivity
-    trackIds = '';     // Stores track IDs for re-use in audio analysis callout
+           showPlaylists           = false;  // Controls the visibility of playlist UI section
+           showTracks              = false;  // Controls the visibility of tracks UI section
+    @track simplifiedTrackArray    = [];     // Tracks changes to the track array for reactivity
+           trackIds                = '';     // Stores track IDs for re-use in audio analysis callout
+           multiTrackAnalysisArray = [];     // Stores multi-track audio analysis data for reactivity
+    
 
 
     columns = [
@@ -63,6 +65,7 @@ export default class Spotify_Profile extends LightningElement {
     }
 
     async handlePlaylistSelect(event) {
+        this.multiTrackAnalysisArray = [];
         this.showTracks = false;
         const itemId = event.detail;
         console.log(`Clicked item ID: ${itemId}`);
@@ -83,6 +86,20 @@ export default class Spotify_Profile extends LightningElement {
                     external_link   : item.track.external_urls.spotify,
                     href            : item.track.href
                 }));
+                  // tracksList.items.forEach(item => {
+                  //     getTrackAudioAnalysis({ trackID: item.track.id })
+                  //        .then(trackAnalysis => {
+                  //             trackAnalysis = JSON.parse(trackAnalysis);
+                  //            console.log('Track analysis: ', trackAnalysis);
+                  //            this.multiTrackAnalysisArray.push(trackAnalysis);                             
+                  //         })
+                  //        .catch(error => {
+                  //             console.error('Error getting track analysis', error);
+                  //         })
+                  // })
+                this.generateAudioAnalysisArray(tracksList);
+                  
+                console.log('Track analysis array: ', this.multiTrackAnalysisArray);
                 this.trackIds = this.simplifiedTrackArray.map(track => track.id).join(',');
                 console.log('Tracks IDs: ' + this.trackIds);
                 let trackFeatures = await getMultiTrackAudioFeatures({ trackIDs: this.trackIds });
@@ -111,14 +128,20 @@ export default class Spotify_Profile extends LightningElement {
         }
     }
 
-    // async handleAudioAnalysis() {
-    //     console.log('Audio analysis');
-    //     try {
-    //         let trackFeatures = await getMultiTrackAudioFeatures({ trackIDs: this.trackIds });
-    //         trackFeatures = JSON.parse(trackFeatures);
-    //         console.log('Track analysis: ', trackFeatures);
-    //     }
-
+    generateAudioAnalysisArray(tracksList) {
+        tracksList.items.forEach(item => {
+            getTrackAudioAnalysis({ trackID: item.track.id })
+               .then(trackAnalysis => {
+                    trackAnalysis = JSON.parse(trackAnalysis);
+                   console.log('Track analysis: ', trackAnalysis);
+                   this.multiTrackAnalysisArray.push(trackAnalysis);                             
+                })
+               .catch(error => {
+                    console.error('Error getting track analysis', error);
+                })
+        })
+        console.log('Working function');
+    }
 
 
 

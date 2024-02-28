@@ -7,7 +7,7 @@
     </template>
 
     <template if:true={showTracks}>
-        <c-spotify-tracks-list tracks={simplifiedTrackArray}></c-spotify-tracks-list>
+        <c-spotify-tracks-list tracks={simplifiedTrackArray} ontrackselect={handleTrackSelect}></c-spotify-tracks-list>
     </template>
 
 

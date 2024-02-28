@@ -7,11 +7,11 @@ public class Spotify_Utility {
     }
     
     public static HttpResponse getAccessToken() {
-        HttpRequest  req  = new HttpRequest();
-        HttpResponse res  = new HttpResponse();
-        Http         http = new Http();       
+        HttpRequest         req           = new HttpRequest();
+        HttpResponse        res           = new HttpResponse();
+        Http                http          = new Http();
         Spotify_Config__mdt spotifyConfig = Spotify_Config__mdt.getInstance('Config_Settings');
-        string              url      = string.valueOf(spotifyConfig.get('Token_Endpoint__c'));
+        string              url           = string.valueOf(spotifyConfig.get('Token_Endpoint__c'));        
         string              clientId      = string.valueOf(spotifyConfig.get('Client_ID__c'));
         string              clientSecret  = string.valueOf(spotifyConfig.get('Client_Secret__c'));
         string              body          = 'grant_type=client_credentials' + '&client_id=' + clientId + '&client_secret=' + clientSecret;

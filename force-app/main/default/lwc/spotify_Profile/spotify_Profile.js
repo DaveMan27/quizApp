@@ -6,18 +6,19 @@ import getPlaylistTracks from '@salesforce/apex/Spotify_lwcController.getPlaylis
 
 export default class Spotify_Profile extends LightningElement {
 
-           userProfile             = {};
-           userPlaylists           = {};
-    @track simplifiedPlaylistArray = [];
-           showPlaylists           = false;
-           showTracks              = false;
-    @track simplifiedTrackArray    = [];
+           userProfile             = {}; // Stores user profile information
+           userPlaylists           = {}; // Stores user playlists information
+    @track simplifiedPlaylistArray = []; // Tracks changes to the playlist array for reactivity
+           showPlaylists           = false; // Controls the visibility of playlist UI section
+           showTracks              = false; // Controls the visibility of tracks UI section
+    @track simplifiedTrackArray    = []; // Tracks changes to the track array for reactivity
     
     columns = [
         { label: 'Name', fieldName: 'name' },
         { label: 'Link', fieldName: 'link', type: 'url' }        
     ];
 
+    // Fetch and process user profile data
     async handleGetProfile() {
         try {
             this.userProfile = await getUserProfile();
@@ -28,6 +29,7 @@ export default class Spotify_Profile extends LightningElement {
         }
     }
 
+    // Fetch and process user playlists
     async handleGetPlaylists() {
         try {
             this.userPlaylists = await getUserPlaylists();
@@ -45,6 +47,7 @@ export default class Spotify_Profile extends LightningElement {
         }
     }
 
+    // Process playlists data to simplify and prepare for display
     handlePlaylistArray()
     {
         this.simplifiedPlaylistArray = this.userPlaylists.items.map(playlist => ({
@@ -57,21 +60,25 @@ export default class Spotify_Profile extends LightningElement {
     }
 
     async handlePlaylistSelect(event) {
-        this.showTracks = false;
-        const itemId = event.detail;
+              this.showTracks = false;
+        const itemId          = event.detail;        
         console.log(`Clicked item ID: ${itemId}`);
         try {
             let playlist = await openPlaylist({ playListID: itemId });
                 playlist = JSON.parse(playlist);
             console.log('Opening playlist: ', playlist);
             let tracksList = await getPlaylistTracks({ playListID: itemId });
-                tracksList = JSON.parse(tracksList);
+            tracksList = JSON.parse(tracksList);
+            console.log('Tracks: ', tracksList);
             if (tracksList.total > 0) {
                 this.simplifiedTrackArray = tracksList.items.map(item => ({
-                    name   : item.track.name,
-                    artists: item.track.artists.map(artist => artist.name),
-                    artists_nonArray : item.track.artists.map(artist => artist.name).join(', '),
-                    album: item.track.album.name
+                    name            : item.track.name,
+                    artists         : item.track.artists.map(artist => artist.name),
+                    artists_nonArray: item.track.artists.map(artist => artist.name).join(', '),
+                    album           : item.track.album.name,
+                    id              : item.track.id,
+                    external_link   : item.track.external_urls.spotify,
+                    href            : item.track.href                               
                 }));
 
                 this.showTracks = true;
@@ -83,14 +90,12 @@ export default class Spotify_Profile extends LightningElement {
         }
     }
 
+    async handleTrackSelect(event) {
+        const trackId = event.detail;
+        console.log(`Clicked track ID: ${trackId}`);
+    }
+
     
-
-
-
-
-
-   
-
 }
 
 

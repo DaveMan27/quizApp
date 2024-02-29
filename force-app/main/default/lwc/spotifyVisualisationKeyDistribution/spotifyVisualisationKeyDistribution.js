@@ -1,4 +1,4 @@
-import { LightningElement } from "lwc";
+import { LightningElement, api } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { loadScript, loadStyle } from "lightning/platformResourceLoader";
 import D3 from "@salesforce/resourceUrl/d3_min";
@@ -6,17 +6,14 @@ import DATA from "@salesforce/resourceUrl/data";
 import STYLES from "@salesforce/resourceUrl/styles";
 
 export default class SpotifyVisualisationKeyDistribution extends LightningElement {
-     
-   svgWidth     = 928;
-   svgHeight    = 500;
-   marginTop    = 20;
-   marginRight  = 0;
-   marginBottom = 30;
-   marginLeft   = 40;
+
+   @api svgWidth  = 928;
+   @api svgHeight = 500; 
 
   d3Initialized = false;
 
-  renderedCallback() {
+    renderedCallback() {
+   
     if (this.d3Initialized) {
         return;
     }
@@ -54,59 +51,55 @@ export default class SpotifyVisualisationKeyDistribution extends LightningElemen
 
 
   initializeD3(data) {
-    // Example adopted from https://bl.ocks.org/mbostock/2675ff61ea5e063ede2b5d63c08020c7
-  
-
-  // Create the horizontal scale and its axis generator.
-  const x = d3.scaleBand()
-  .domain(data.sort((a, b) => b.frequency - a.frequency).map(d => d.key))
-  .range([this.marginLeft, this.svgWidth - this.marginRight])
-    .padding(0.1);
-
-  const xAxis = d3.axisBottom(x).tickSizeOuter(0);
-
-
-  // Create the vertical scale.
-  const y = d3.scaleLinear()
-    .domain([0, d3.max(data, d => d.frequency)]).nice()
-    .range([this.svgHeight - this.marginBottom, this.marginTop]);
-
-  // Create the SVG container and call the zoom behavior.
+      // Example adopted from https://bl.ocks.org/mbostock/2675ff61ea5e063ede2b5d63c08020c7
+    
+   
       const svg = d3.select(this.template.querySelector('svg'));
-      svg.attr("viewBox", [0, 0, this.svgWidth, this.svgHeight])
-        .attr("width", this.svgWidth)
-      .attr("height", this.svgHeight)
-      .attr("style", "max-width: 100%; height: auto;")
-      .call(zoom);
+      const margin = { top: 20, right: 0, bottom: 30, left: 40 };
+      const width = this.svgWidth - margin.left - margin.right;
+      const height = this.svgHeight - margin.top - margin.bottom;
 
-  // Append the bars.
-  svg.append("g")
-      .attr("class", "bars")
-      .attr("fill", "steelblue")
-    .selectAll("rect")
-    .data(data)
-    .join("rect")
-      .attr("x", d => x(d.key))
-      .attr("y", d => y(d.frequency))
-      .attr("height", d => y(0) - y(d.frequency))
-      .attr("width", x.bandwidth());
+      // Scales and axes setup...
+      const x = d3.scaleBand()
+          .rangeRound([0, width])
+          .padding(0.1)
+          .domain(data.map(d => d.key));
+
+      const y = d3.scaleLinear()
+          .rangeRound([height, 0])
+          .domain([0, d3.max(data, d => d.frequency)]);
+
+      // Append SVG and groups, applying transformations...
+      svg.attr('viewBox', `0 0 ${this.svgWidth} ${this.svgHeight}`)
+          .append('g')
+          .attr('transform', `translate(${margin.left},${margin.top})`);
+      
+      // Example: Appending bars...
+      svg.selectAll('.bar')
+          .data(data)
+          .enter().append('rect')
+          .attr('class', 'bar')
+          .attr('x', d => x(d.key))
+          .attr('y', d => y(d.frequency))
+          .attr('width', x.bandwidth())
+          .attr('height', d => height - y(d.frequency));
 
   // Append the axes.
   svg.append("g")
       .attr("class", "x-axis")
-      .attr("transform", `translate(0,${this.svgHeight - this.marginBottom})`)
+      .attr("transform", `translate(0,${this.svgHeight - margin.bottom})`)
       .call(xAxis);
 
   svg.append("g")
       .attr("class", "y-axis")
-      .attr("transform", `translate(${this.marginLeft},0)`)
+      .attr("transform", `translate(${margin.left},0)`)
       .call(d3.axisLeft(y))
       .call(g => g.select(".domain").remove());
 
   return svg.node();
 
   function zoom(svg) {
-    const extent = [[this.marginLeft, this.marginTop], [this.svgWidth - this.marginRight, this.svgHeight - this.marginTop]];
+    const extent = [[margin.left, margin.top], [this.svgWidth - margin.right, this.svgHeight - margin.top]];
 
     svg.call(d3.zoom()
         .scaleExtent([1, 8])
@@ -115,7 +108,7 @@ export default class SpotifyVisualisationKeyDistribution extends LightningElemen
         .on("zoom", zoomed));
 
     function zoomed(event) {
-      x.range([this.marginLeft, this.svgWidth - this.marginRight].map(d => event.transform.applyX(d)));
+      x.range([margin.left, this.svgWidth - margin.right].map(d => event.transform.applyX(d)));
       svg.selectAll(".bars rect").attr("x", d => x(d.key)).attr("width", x.bandwidth());
       svg.selectAll(".x-axis").call(xAxis);
     }

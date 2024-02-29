@@ -4,7 +4,7 @@ import getUserPlaylists from '@salesforce/apex/Spotify_lwcController.getUserPlay
 //import openPlaylist from '@salesforce/apex/Spotify_lwcController.openPlaylist';
 import getPlaylistTracks from '@salesforce/apex/Spotify_lwcController.getPlaylistTracks';
 import getTrackAudioAnalysis from '@salesforce/apex/Spotify_lwcController.getTrackAudioAnalysis';
-//import getMultiTrackAudioFeatures from '@salesforce/apex/Spotify_lwcController.getMultiTrackAudioFeatures';
+import getMultiTrackAudioFeatures from '@salesforce/apex/Spotify_lwcController.getMultiTrackAudioFeatures';
 
 export default class Spotify_Profile extends LightningElement {
 
@@ -17,7 +17,9 @@ export default class Spotify_Profile extends LightningElement {
            trackIds                = '';             // Stores track IDs for re-use in audio analysis callout
            username                = 'daveslaw-us';  // Stores username for re-use in API callouts    
            multiTrackAnalysisArray = [];             // Stores multi-track audio analysis data for reactivity
-           showVisualization       = false;           
+           showVisualization       = false;
+           trackIDs                = '';
+           keyFeatures             = [];           
            columns                 = [
         { label: 'Name', fieldName: 'name' },
         { label: 'Link', fieldName: 'link', type: 'url' }
@@ -49,7 +51,14 @@ export default class Spotify_Profile extends LightningElement {
             this.showPlaylists = true; 
     }
 
-    handleShowVisualization() {
+    async handleShowVisualization() {
+        let trackFeatures = await getMultiTrackAudioFeatures({ trackIDs: this.trackIDs });
+            trackFeatures = JSON.parse(trackFeatures);
+        console.log('Track features: ', trackFeatures);
+        let keyData = trackFeatures.audio_features.map(({ key, id }) => ({ key, id }));
+     
+        console.log('Key data: ', keyData);
+        this.keyFeatures       = this.generateKeyFrequencyJson(keyData);
         this.showVisualization = !this.showVisualization;
         console.log('Show visualization: ', this.showVisualization);
     }
@@ -77,7 +86,10 @@ export default class Spotify_Profile extends LightningElement {
                 playlist = JSON.parse(playlist);            
             console.log('Opening playlist: ', playlist);*/
             let tracksList = await getPlaylistTracks({ playListID: itemId });
-                tracksList = JSON.parse(tracksList);
+            tracksList = JSON.parse(tracksList);
+            console.log('Tracks list: ', tracksList);
+            this.trackIDs   = tracksList.items.map((item) => item.track.id).join(',');
+            console.log(`Track IDs: ${this.trackIDs}`);
             
             console.log('Tracks: ', tracksList);
             if (tracksList.total > 0) {
@@ -134,6 +146,35 @@ export default class Spotify_Profile extends LightningElement {
         })
         console.log('Working function');
     }
+
+    generateKeyFrequencyJson(audioFeatures) {
+        // Define the mapping from integers to musical notations
+        const keyMapping = {
+            0: 'C', 1: 'C#/Db', 2: 'D', 3: 'D#/Eb', 4: 'E', 5: 'F',
+            6: 'F#/Gb', 7: 'G', 8: 'G#/Ab', 9: 'A', 10: 'A#/Bb', 11: 'B'
+        };
+    
+        // Count the frequency of each key
+        const keyFrequency = audioFeatures.reduce((acc, { key }) => {
+            const note = keyMapping[key];
+            acc[note] = (acc[note] || 0) + 1;
+            return acc;
+        }, {});
+    
+        // Convert the frequency object into an array of objects with 'key' and 'frequency'
+        const keyFrequencyArray = Object.entries(keyFrequency).map(([key, frequency]) => ({
+            key,
+            frequency
+        }));
+    
+        // Convert the array to a JSON string
+        return JSON.stringify(keyFrequencyArray, null, 2);
+    }
+    
+    // Example usage
+    
+    
+    
 }
 
 

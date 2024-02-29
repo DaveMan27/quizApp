@@ -1,4 +1,4 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, api } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { loadScript, loadStyle } from 'lightning/platformResourceLoader';
 import D3 from '@salesforce/resourceUrl/d3_min';
@@ -6,9 +6,10 @@ import DATA from '@salesforce/resourceUrl/data'; // Ensure this points to a vali
 import STYLES from '@salesforce/resourceUrl/styles';
 
 export default class SpotifyVisualisationKeyDistribution extends LightningElement {
-    svgWidth = 928;
-    svgHeight = 500;
+    svgWidth      = 928;
+    svgHeight     = 500;
     d3Initialized = false;
+    @api analysis = [];
 
     renderedCallback() {
         if (this.d3Initialized) {
@@ -17,20 +18,8 @@ export default class SpotifyVisualisationKeyDistribution extends LightningElemen
 
         Promise.all([loadScript(this, D3), loadStyle(this, STYLES)])
             .then(() => {
-                // Assuming DATA is a URL to your data resource
-                fetch(DATA)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        this.initializeD3(data);
-                    })
-                    .catch(error => {
-                        this.handleError(error);
-                    });
+                this.initializeD3(this.analysis);
+                console.log(this.analysis);
             })
             .catch(error => {
                 this.handleError(error);
@@ -40,6 +29,7 @@ export default class SpotifyVisualisationKeyDistribution extends LightningElemen
     }
 
     initializeD3(data) {
+        data = JSON.parse(data);
         const svgElement = this.template.querySelector('svg');
         const svg = d3.select(svgElement);
         const margin = { top: 20, right: 20, bottom: 30, left: 40 };

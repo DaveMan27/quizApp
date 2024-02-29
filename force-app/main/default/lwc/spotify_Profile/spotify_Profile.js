@@ -8,18 +8,16 @@ import getMultiTrackAudioFeatures from '@salesforce/apex/Spotify_lwcController.g
 
 export default class Spotify_Profile extends LightningElement {
 
-           userProfile             = {};     // Stores user profile information
-           userPlaylists           = {};     // Stores user playlists information
-    @track simplifiedPlaylistArray = [];     // Tracks changes to the playlist array for reactivity
-           showPlaylists           = false;  // Controls the visibility of playlist UI section
-           showTracks              = false;  // Controls the visibility of tracks UI section
-    @track simplifiedTrackArray    = [];     // Tracks changes to the track array for reactivity
-           trackIds                = '';     // Stores track IDs for re-use in audio analysis callout
+           userProfile             = {};             // Stores user profile information
+           userPlaylists           = {};             // Stores user playlists information
+    @track simplifiedPlaylistArray = [];             // Tracks changes to the playlist array for reactivity
+           showPlaylists           = false;          // Controls the visibility of playlist UI section
+           showTracks              = false;          // Controls the visibility of tracks UI section
+    @track simplifiedTrackArray    = [];             // Tracks changes to the track array for reactivity
+           trackIds                = '';             // Stores track IDs for re-use in audio analysis callout
+           username                = 'daveslaw-us';  // Stores username for re-use in API callouts    
            multiTrackAnalysisArray = [];     // Stores multi-track audio analysis data for reactivity
-    
-
-
-    columns = [
+           columns                 = [
         { label: 'Name', fieldName: 'name' },
         { label: 'Link', fieldName: 'link', type: 'url' }
     ];
@@ -27,7 +25,7 @@ export default class Spotify_Profile extends LightningElement {
     // Fetch and process user profile data
     async handleGetProfile() {
         try {
-            this.userProfile = await getUserProfile();
+            this.userProfile = await getUserProfile({ username: username});
             this.userProfile = JSON.parse(this.userProfile);
             console.log(this.userProfile);
         } catch (error) {
@@ -38,7 +36,7 @@ export default class Spotify_Profile extends LightningElement {
     // Fetch and process user playlists
     async handleGetPlaylists() {
         try {
-            this.userPlaylists = await getUserPlaylists();
+            this.userPlaylists = await getUserPlaylists({ username: username});
             this.userPlaylists = JSON.parse(this.userPlaylists);
             console.log(this.userPlaylists);
         } catch (error) {
@@ -46,11 +44,8 @@ export default class Spotify_Profile extends LightningElement {
         }
 
         this.handlePlaylistArray();
-        if (this.simplifiedPlaylistArray.length > 0) {
-            {
-                this.showPlaylists = true;
-            }
-        }
+        if (this.simplifiedPlaylistArray.length > 0)            
+            this.showPlaylists = true; 
     }
 
     // Process playlists data to simplify and prepare for display
@@ -71,10 +66,11 @@ export default class Spotify_Profile extends LightningElement {
         console.log(`Clicked item ID: ${itemId}`);
         try {
             let playlist = await openPlaylist({ playListID: itemId });
-            playlist = JSON.parse(playlist);
+                playlist = JSON.parse(playlist);            
             console.log('Opening playlist: ', playlist);
             let tracksList = await getPlaylistTracks({ playListID: itemId });
-            tracksList = JSON.parse(tracksList);
+                tracksList = JSON.parse(tracksList);
+            
             console.log('Tracks: ', tracksList);
             if (tracksList.total > 0) {
                 this.simplifiedTrackArray = tracksList.items.map(item => ({

@@ -1,15 +1,15 @@
 public class Spotify_lwcController {
     
     @AuraEnabled(cacheable=true)
-    public static string getUserProfile() {
-        HttpResponse apiResponse = Spotify_Utility.calloutHandler('users/daveslaw-us');
+    public static string getUserProfile(string username) {
+        HttpResponse apiResponse = Spotify_Utility.calloutHandler('users/' + username);
         system.debug('apiResponse: ' + apiResponse);
         return apiResponse.getBody();
     }
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           // ***********************************************************************************************************
     @AuraEnabled(cacheable=true)
-    public static string getUserPlaylists() {
-        HttpResponse apiResponse = Spotify_Utility.calloutHandler('users/daveslaw-us/playlists');
+    public static string getUserPlaylists(string username) {
+        HttpResponse apiResponse = Spotify_Utility.calloutHandler('users/' + username + '/playlists');
         system.debug('apiResponse: ' + apiResponse);
         return apiResponse.getBody();
     }

@@ -1,13 +1,3 @@
-//import { LightningElement, api } from 'lwc';
-
-//export default class SpotifyVisualisationKeyDistribution extends LightningElement {
-    /*@api analysis = [];
-    connectedCallback() {
-        console.log('Analysis: ', JSON.parse(JSON.stringify(this.analysis)));
-    }*/
-
-  // libsD3.js
-  /* global d3 */
 import { LightningElement } from "lwc";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
 import { loadScript, loadStyle } from "lightning/platformResourceLoader";
@@ -16,8 +6,13 @@ import DATA from "@salesforce/resourceUrl/data";
 import STYLES from "@salesforce/resourceUrl/styles";
 
 export default class SpotifyVisualisationKeyDistribution extends LightningElement {
-  svgWidth = 400;
-  svgHeight = 400;
+     
+   svgWidth     = 928;
+   svgHeight    = 500;
+   marginTop    = 20;
+   marginRight  = 0;
+   marginBottom = 30;
+   marginLeft   = 40;
 
   d3Initialized = false;
 
@@ -60,85 +55,72 @@ export default class SpotifyVisualisationKeyDistribution extends LightningElemen
 
   initializeD3(data) {
     // Example adopted from https://bl.ocks.org/mbostock/2675ff61ea5e063ede2b5d63c08020c7
-      const svg = d3.select(this.template.querySelector("svg.d3"));
-      console.log(svg);
-    const width  = this.svgWidth;
-    const height = this.svgHeight;
-    const color  = d3.scaleOrdinal(d3.schemeDark2);
-      console.log(data);
+  
 
-    const simulation = d3
-      .forceSimulation()
-      .force(
-        "link",
-        d3.forceLink().id((d) => {
-          return d.id;
-        }),
-      )
-      .force("charge", d3.forceManyBody())
-      .force("center", d3.forceCenter(width / 2, height / 2));
+  // Create the horizontal scale and its axis generator.
+  const x = d3.scaleBand()
+  .domain(data.sort((a, b) => b.frequency - a.frequency).map(d => d.key))
+  .range([this.marginLeft, this.svgWidth - this.marginRight])
+    .padding(0.1);
 
-    const link = svg
-      .append("g")
-      .attr("class", "links")
-      .selectAll("line")
-      .data(data.links)
-      .enter()
-      .append("line")
-      .attr("stroke-width", (d) => {
-        return Math.sqrt(d.value);
-      });
+  const xAxis = d3.axisBottom(x).tickSizeOuter(0);
 
-    const node = svg
-      .append("g")
-      .attr("class", "nodes")
-      .selectAll("circle")
-      .data(data.nodes)
-      .enter()
-      .append("circle")
-      .attr("r", 5)
-      .attr("fill", (d) => {
-        return color(d.group);
-      })
-      .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended));
 
-    node.append("title").text((d) => {
-      return d.id;
-    });
+  // Create the vertical scale.
+  const y = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.frequency)]).nice()
+    .range([this.svgHeight - this.marginBottom, this.marginTop]);
 
-    simulation.nodes(data.nodes).on("tick", ticked);
+  // Create the SVG container and call the zoom behavior.
+      const svg = d3.select(this.template.querySelector('svg'));
+      svg.attr("viewBox", [0, 0, this.svgWidth, this.svgHeight])
+        .attr("width", this.svgWidth)
+      .attr("height", this.svgHeight)
+      .attr("style", "max-width: 100%; height: auto;")
+      .call(zoom);
 
-    simulation.force("link").links(data.links);
+  // Append the bars.
+  svg.append("g")
+      .attr("class", "bars")
+      .attr("fill", "steelblue")
+    .selectAll("rect")
+    .data(data)
+    .join("rect")
+      .attr("x", d => x(d.key))
+      .attr("y", d => y(d.frequency))
+      .attr("height", d => y(0) - y(d.frequency))
+      .attr("width", x.bandwidth());
 
-    function ticked() {
-      link
-        .attr("x1", (d) => d.source.x)
-        .attr("y1", (d) => d.source.y)
-        .attr("x2", (d) => d.target.x)
-        .attr("y2", (d) => d.target.y);
-      node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+  // Append the axes.
+  svg.append("g")
+      .attr("class", "x-axis")
+      .attr("transform", `translate(0,${this.svgHeight - this.marginBottom})`)
+      .call(xAxis);
+
+  svg.append("g")
+      .attr("class", "y-axis")
+      .attr("transform", `translate(${this.marginLeft},0)`)
+      .call(d3.axisLeft(y))
+      .call(g => g.select(".domain").remove());
+
+  return svg.node();
+
+  function zoom(svg) {
+    const extent = [[this.marginLeft, this.marginTop], [this.svgWidth - this.marginRight, this.svgHeight - this.marginTop]];
+
+    svg.call(d3.zoom()
+        .scaleExtent([1, 8])
+        .translateExtent(extent)
+        .extent(extent)
+        .on("zoom", zoomed));
+
+    function zoomed(event) {
+      x.range([this.marginLeft, this.svgWidth - this.marginRight].map(d => event.transform.applyX(d)));
+      svg.selectAll(".bars rect").attr("x", d => x(d.key)).attr("width", x.bandwidth());
+      svg.selectAll(".x-axis").call(xAxis);
     }
-
-    function dragstarted(d) {
-      if (!d3.event.active) {
-        simulation.alphaTarget(0.3).restart();
-      }
-      d.fx = d.x;
-      d.fy = d.y;
-    }
-
-    function dragged(d) {
-      d.fx = d3.event.x;
-      d.fy = d3.event.y;
-    }
-
-    function dragended(d) {
-      if (!d3.event.active) {
-        simulation.alphaTarget(0);
-      }
-      d.fx = null;
-      d.fy = null;
-    }
+  }
+    
   }
 }
 

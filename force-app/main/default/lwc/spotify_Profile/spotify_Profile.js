@@ -16,7 +16,8 @@ export default class Spotify_Profile extends LightningElement {
     @track simplifiedTrackArray    = [];             // Tracks changes to the track array for reactivity
            trackIds                = '';             // Stores track IDs for re-use in audio analysis callout
            username                = 'daveslaw-us';  // Stores username for re-use in API callouts    
-           multiTrackAnalysisArray = [];     // Stores multi-track audio analysis data for reactivity
+           multiTrackAnalysisArray = [];             // Stores multi-track audio analysis data for reactivity
+           showVisualization       = false;           
            columns                 = [
         { label: 'Name', fieldName: 'name' },
         { label: 'Link', fieldName: 'link', type: 'url' }
@@ -47,6 +48,12 @@ export default class Spotify_Profile extends LightningElement {
         if (this.simplifiedPlaylistArray.length > 0)            
             this.showPlaylists = true; 
     }
+
+    handleShowVisualization() {
+        this.showVisualization = !this.showVisualization;
+        console.log('Show visualization: ', this.showVisualization);
+    }
+
 
     // Process playlists data to simplify and prepare for display
     handlePlaylistArray() {

@@ -1,10 +1,10 @@
 import { LightningElement, track } from 'lwc';
 import getUserProfile from '@salesforce/apex/Spotify_lwcController.getUserProfile';
 import getUserPlaylists from '@salesforce/apex/Spotify_lwcController.getUserPlaylists';
-import openPlaylist from '@salesforce/apex/Spotify_lwcController.openPlaylist';
+//import openPlaylist from '@salesforce/apex/Spotify_lwcController.openPlaylist';
 import getPlaylistTracks from '@salesforce/apex/Spotify_lwcController.getPlaylistTracks';
 import getTrackAudioAnalysis from '@salesforce/apex/Spotify_lwcController.getTrackAudioAnalysis';
-import getMultiTrackAudioFeatures from '@salesforce/apex/Spotify_lwcController.getMultiTrackAudioFeatures';
+//import getMultiTrackAudioFeatures from '@salesforce/apex/Spotify_lwcController.getMultiTrackAudioFeatures';
 
 export default class Spotify_Profile extends LightningElement {
 
@@ -96,20 +96,7 @@ export default class Spotify_Profile extends LightningElement {
                         href
                     };
                 });
-
-                
-
-               
-                
-                  /*this.generateAudioAnalysisArray(tracksList);
-                  
-                console.log('Track analysis array: ', this.multiTrackAnalysisArray);
-                this.trackIds = this.simplifiedTrackArray.map(track => track.id).join(',');
-                console.log('Tracks IDs: ' + this.trackIds);
-                let trackFeatures = await getMultiTrackAudioFeatures({ trackIDs: this.trackIds });
-                trackFeatures = JSON.parse(trackFeatures);
-                console.log('Track features: ', trackFeatures);
-                                                                */
+                                                                
                 this.showTracks = true;
                 console.log(JSON.parse(JSON.stringify(this.simplifiedTrackArray)));
                 this.generateAudioAnalysisArray(tracksList);

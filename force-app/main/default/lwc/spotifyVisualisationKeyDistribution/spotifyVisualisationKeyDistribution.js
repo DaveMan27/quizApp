@@ -6,10 +6,10 @@ import DATA from '@salesforce/resourceUrl/data'; // Ensure this points to a vali
 import STYLES from '@salesforce/resourceUrl/styles';
 
 export default class SpotifyVisualisationKeyDistribution extends LightningElement {
-    svgWidth      = 928;
-    svgHeight     = 500;
-    d3Initialized = false;
-    @api analysis = [];
+         svgWidth      = 928;
+         svgHeight     = 500;
+         d3Initialized = false;
+    @api analysis      = [];
 
     renderedCallback() {
         if (this.d3Initialized) {

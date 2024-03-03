@@ -21,10 +21,12 @@ export default class Spotify_Profile extends LightningElement {
            trackIDs                = '';
            instrumentalArray       = [];
            keyFeatures             = [];
+           keyTempoArray           = [];           
            columns                 = [
         { label: 'Name', fieldName: 'name' },
         { label: 'Link', fieldName: 'link', type: 'url' }
     ];
+    
 
     // Fetch and process user profile data
     async handleGetProfile() {
@@ -49,7 +51,7 @@ export default class Spotify_Profile extends LightningElement {
 
         this.handlePlaylistArray();
         if (this.simplifiedPlaylistArray.length > 0)            
-            this.showPlaylists = true; 
+            this.showPlaylists = true;
     }
 
     async handleShowVisualization() {
@@ -60,8 +62,12 @@ export default class Spotify_Profile extends LightningElement {
         let instrumentalData = trackFeatures.audio_features.map(({ instrumentalness, id }) => ({ instrumentalness, id }));
      
         console.log('Key data: ', keyData);
-        this.keyFeatures       = this.generateFrequencyArray(keyData, 'key');;
+        this.keyFeatures       = this.generateFrequencyArray(keyData, 'key');
         this.instrumentalArray = this.generateFrequencyArray(instrumentalData, 'instrumentalness');
+        this.keyTempoArray = this.createKeyTempArray(trackFeatures.audio_features);
+        console.log('Key features: ', this.keyFeatures);
+        console.log('Instrumental array: ', this.instrumentalArray);
+        console.log('Key tempo array: ', this.keyTempoArray);
         this.showVisualization = !this.showVisualization;
         console.log('Show visualization: ', this.showVisualization);
     }
@@ -173,52 +179,11 @@ export default class Spotify_Profile extends LightningElement {
         // Convert the array to a JSON string
         return JSON.stringify(frequencyArray, null, 2);
     }
-    
 
-    /*generateKeyFrequencyJson(audioFeatures) {
-        // Define the mapping from integers to musical notations
-        const keyMapping = {
-            0: 'C', 1: 'C#/Db', 2: 'D', 3: 'D#/Eb', 4: 'E', 5: 'F',
-            6: 'F#/Gb', 7: 'G', 8: 'G#/Ab', 9: 'A', 10: 'A#/Bb', 11: 'B'
-        };
-    
-        // Count the frequency of each key
-        const keyFrequency = audioFeatures.reduce((acc, { key }) => {
-            const note = keyMapping[key];
-            acc[note] = (acc[note] || 0) + 1;
-            return acc;
-        }, {});
-    
-        // Convert the frequency object into an array of objects with 'key' and 'frequency'
-        const keyFrequencyArray = Object.entries(keyFrequency).map(([key, frequency]) => ({
-            key,
-            frequency
-        }));
-    
-        // Convert the array to a JSON string
-        return JSON.stringify(keyFrequencyArray, null, 2);
+    createKeyTempArray(audioFeatures) {
+        return audioFeatures.map(({ key, tempo }) => ({ key, tempo }));
     }
-
-    generateInstrumentalFrequencyJson(audioFeatures) {
-          // Count the frequency of each key
-        const instrumentalFrequency = audioFeatures.reduce((acc, { instrumentalness }) => {
-            acc[instrumentalness] = (acc[instrumentalness] || 0) + 1;
-            return acc;
-        }, {});
-
-          // Convert the frequency object into an array of objects with 'key' and 'frequency'
-        const instrumentalFrequencyArray = Object.entries(instrumentalFrequency).map(([key, frequency]) => ({
-            key,
-            frequency
-        }));
-
-          // Convert the array to a JSON string
-        return JSON.stringify(instrumentalFrequencyArray, null, 2);
-    }*/
-
     
-    
-    // Example usage
     
     
     

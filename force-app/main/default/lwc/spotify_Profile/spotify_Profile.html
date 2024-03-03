@@ -1,4 +1,6 @@
 <template>
+    
+    
     <lightning-button variant = "brand-outline" label = "Get Profile" title   = "Primary action with lighter look" onclick = {handleGetProfile} class   = "slds-m-left_x-small"></lightning-button>
     <lightning-button variant = "brand-outline" label = "Get Playlists" title = "Primary action with lighter look" onclick = {handleGetPlaylists} class = "slds-m-left_x-small"></lightning-button>
     <lightning-button variant = "brand-outline" label = "Show Visualization" title = "Primary action with lighter look" onclick = {handleShowVisualization} class = "slds-m-left_x-small"></lightning-button>
@@ -19,6 +21,10 @@
     <template                                 if:true  = {showVisualization}>
     <c-spotify-visualisation-key-distribution analysis = {instrumentalArray}></c-spotify-visualisation-key-distribution>
     </template>
+<!-- SpotifyVisualisationBoxplot -->
+    <template                                 if:true  = {showVisualization}>
+        <c-spotify-visualisation-boxplot analysis = {keyTempoArray}></c-spotify-visualisation-boxplot>
+        </template>
 
 
     

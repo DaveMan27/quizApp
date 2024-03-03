@@ -28,21 +28,22 @@ export default class SpotifyVisualisationBoxplot extends LightningElement {
     }
 
     initializeD3(data) {
-              data       = JSON.parse(data);
         const svgElement = this.template.querySelector('svg');
         const svg        = d3.select(svgElement);
+        console.log('SVG:', svg);
+
         const margin     = { top: 20, right: 20, bottom: 30, left: 40 };
         const width      = this.svgWidth - margin.left - margin.right;
-        const height = this.svgHeight - margin.top - margin.bottom;
+        const height     = this.svgHeight - margin.top - margin.bottom;
         
   const n    = width / 40;
-  const bins = d3.bin()
+  const bins = d3.bind()
     .thresholds(n)
-    .value(d => d.carat)
-  (diamonds)
+    .value(d => d.key)
+  (data)
     .map(bin => {
-      bin.sort((a, b) => a.price - b.price);
-      const values = bin.map(d => d.price);
+      bin.sort((a, b) => a.tempo - b.tempo);
+      const values = bin.map(d => d.tempo);
       const min = values[0];
       const max = values[values.length - 1];
       const q1 = d3.quantile(values, 0.25);
@@ -53,7 +54,7 @@ export default class SpotifyVisualisationBoxplot extends LightningElement {
       const r1 = Math.min(max, q3 + iqr * 1.5);
       bin.quartiles = [q1, q2, q3];
       bin.range = [r0, r1];
-      bin.outliers = bin.filter(v => v.price < r0 || v.price > r1); // TODO
+      bin.outliers = bin.filter(v => v.tempo < r0 || v.tempo > r1); // TODO
       return bin;
     })
 
@@ -117,7 +118,7 @@ export default class SpotifyVisualisationBoxplot extends LightningElement {
     .join("circle")
       .attr("r", 2)
       .attr("cx", () => (Math.random() - 0.5) * 4)
-      .attr("cy", d => y(d.price));
+      .attr("cy", d => y(d.tempo));
 
   // Append the x axis.
   svg.append("g")
@@ -139,7 +140,7 @@ export default class SpotifyVisualisationBoxplot extends LightningElement {
         console.error('Error:', error);
         this.dispatchEvent(
             new ShowToastEvent({
-                title: 'Error loading D3 or data',
+                title: 'Error loading d3 or data',
                 message: error.message,
                 variant: 'error',
             }),

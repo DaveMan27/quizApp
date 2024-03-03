@@ -19,7 +19,8 @@ export default class Spotify_Profile extends LightningElement {
            multiTrackAnalysisArray = [];             // Stores multi-track audio analysis data for reactivity
            showVisualization       = false;
            trackIDs                = '';
-           keyFeatures             = [];           
+           instrumentalArray       = [];
+           keyFeatures             = [];
            columns                 = [
         { label: 'Name', fieldName: 'name' },
         { label: 'Link', fieldName: 'link', type: 'url' }
@@ -55,10 +56,12 @@ export default class Spotify_Profile extends LightningElement {
         let trackFeatures = await getMultiTrackAudioFeatures({ trackIDs: this.trackIDs });
             trackFeatures = JSON.parse(trackFeatures);
         console.log('Track features: ', trackFeatures);
-        let keyData = trackFeatures.audio_features.map(({ key, id }) => ({ key, id }));
+        let keyData          = trackFeatures.audio_features.map(({ key, id }) => ({ key, id }));
+        let instrumentalData = trackFeatures.audio_features.map(({ instrumentalness, id }) => ({ instrumentalness, id }));
      
         console.log('Key data: ', keyData);
         this.keyFeatures       = this.generateKeyFrequencyJson(keyData);
+        this.instrumentalArray = this.generateInstrumentalFrequencyJson(instrumentalData);
         this.showVisualization = !this.showVisualization;
         console.log('Show visualization: ', this.showVisualization);
     }
@@ -169,6 +172,23 @@ export default class Spotify_Profile extends LightningElement {
     
         // Convert the array to a JSON string
         return JSON.stringify(keyFrequencyArray, null, 2);
+    }
+
+    generateInstrumentalFrequencyJson(audioFeatures) {
+          // Count the frequency of each key
+        const instrumentalFrequency = audioFeatures.reduce((acc, { instrumentalness }) => {
+            acc[instrumentalness] = (acc[instrumentalness] || 0) + 1;
+            return acc;
+        }, {});
+
+          // Convert the frequency object into an array of objects with 'key' and 'frequency'
+        const instrumentalFrequencyArray = Object.entries(instrumentalFrequency).map(([key, frequency]) => ({
+            key,
+            frequency
+        }));
+
+          // Convert the array to a JSON string
+        return JSON.stringify(instrumentalFrequencyArray, null, 2);
     }
     
     // Example usage

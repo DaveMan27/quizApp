@@ -21,12 +21,26 @@ export default class Spotify_Profile extends LightningElement {
            trackIDs                = '';
            instrumentalArray       = [];
            keyFeatures             = [];
-           keyTempoArray           = [];           
+           keyTempoArray           = [];
+           comboBoxPlaylistArray   = [];    
            columns                 = [
         { label: 'Name', fieldName: 'name' },
         { label: 'Link', fieldName: 'link', type: 'url' }
-    ];
-    
+    ];    
+    value = 'inProgress';
+
+
+    get options() {
+        return this.comboBoxPlaylistArray;
+    }
+
+    connectedCallback() {
+        this.comboBoxPlaylistArray = this.handleComboboxPlaylist();
+    }
+
+    handleComboBoxChange(event) {
+        this.value = event.detail.value;
+    }
 
     // Fetch and process user profile data
     async handleGetProfile() {
@@ -53,6 +67,20 @@ export default class Spotify_Profile extends LightningElement {
         if (this.simplifiedPlaylistArray.length > 0)            
             this.showPlaylists = true;
     }
+
+    async handleComboboxPlaylist() {
+        try {
+            this.userPlaylists = await getUserPlaylists({ username: this.username });
+            this.userPlaylists = JSON.parse(this.userPlaylists);
+            this.comboBoxPlaylistArray = this.userPlaylists.items.map(({ name, id }) => ({ label: name, value: id }));
+
+        } catch (error) {
+            console.error('Error getting user profile', error);
+        }
+
+        return this.comboBoxPlaylistArray;
+    }
+        
 
     async handleShowVisualization() {
         let trackFeatures = await getMultiTrackAudioFeatures({ trackIDs: this.trackIDs });

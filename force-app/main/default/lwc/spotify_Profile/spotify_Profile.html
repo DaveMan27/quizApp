@@ -1,5 +1,14 @@
 <template>
-    
+    <lightning-combobox
+    name="progress"
+    label="Playlists"
+    value={value}
+    placeholder="Select Playlist"
+    options={options}
+    onchange={handleComboBoxChange} ></lightning-combobox>
+    <p>Selected value is: {value}</p>
+
+
     
     <lightning-button variant = "brand-outline" label = "Get Profile" title   = "Primary action with lighter look" onclick = {handleGetProfile} class   = "slds-m-left_x-small"></lightning-button>
     <lightning-button variant = "brand-outline" label = "Get Playlists" title = "Primary action with lighter look" onclick = {handleGetPlaylists} class = "slds-m-left_x-small"></lightning-button>

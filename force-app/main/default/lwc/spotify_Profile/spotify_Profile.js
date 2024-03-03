@@ -38,8 +38,49 @@ export default class Spotify_Profile extends LightningElement {
         this.comboBoxPlaylistArray = this.handleComboboxPlaylist();
     }
 
-    handleComboBoxChange(event) {
-        this.value = event.detail.value;
+    async handleComboBoxChange(event) {
+              //this.value                   = event.detail.value;
+              this.multiTrackAnalysisArray = [];
+              this.showTracks              = false;
+        const itemId                       = event.detail.value;
+        console.log(`Clicked item ID: ${itemId}`);
+        try {
+            /*let playlist = await openPlaylist({ playListID: itemId });
+                playlist = JSON.parse(playlist);            
+            console.log('Opening playlist: ', playlist);*/
+            let tracksList = await getPlaylistTracks({ playListID: itemId });
+            tracksList = JSON.parse(tracksList);
+            console.log('Tracks list: ', tracksList);
+            this.trackIDs   = tracksList.items.map((item) => item.track.id).join(',');
+            console.log(`Track IDs: ${this.trackIDs}`);
+            
+            console.log('Tracks: ', tracksList);
+            if (tracksList.total > 0) {
+                this.simplifiedTrackArray = tracksList.items.map(({ track }) => {
+                    const { name, artists, album, id, external_urls: { spotify: external_link }, href } = track;
+  // Combine the artist names in a single iteration
+                    const artistNames = artists.map(artist => artist.name);                    
+                    const artists_nonArray = artistNames.join(', ');
+                    return {
+                        name,
+                        artists: artistNames,
+                        artists_nonArray,
+                        album: album.name,
+                        id,
+                        external_link,
+                        href
+                    };
+                });
+                                                                
+                this.showTracks = true;
+                console.log(JSON.parse(JSON.stringify(this.simplifiedTrackArray)));
+                this.generateAudioAnalysisArray(tracksList);
+                console.log('Multi item analysis array: ', this.multiTrackAnalysisArray);
+            }
+            console.log('Tracks: ', tracksList);
+        } catch (error) {
+            console.error('Error getting user profile', error);
+        }
     }
 
     // Fetch and process user profile data

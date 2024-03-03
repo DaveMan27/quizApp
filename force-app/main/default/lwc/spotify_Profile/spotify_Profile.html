@@ -11,17 +11,17 @@
 
     
     <lightning-button variant = "brand-outline" label = "Get Profile" title   = "Primary action with lighter look" onclick = {handleGetProfile} class   = "slds-m-left_x-small"></lightning-button>
-    <lightning-button variant = "brand-outline" label = "Get Playlists" title = "Primary action with lighter look" onclick = {handleGetPlaylists} class = "slds-m-left_x-small"></lightning-button>
+    <!-- <lightning-button variant = "brand-outline" label = "Get Playlists" title = "Primary action with lighter look" onclick = {handleGetPlaylists} class = "slds-m-left_x-small"></lightning-button> -->
     <lightning-button variant = "brand-outline" label = "Show Visualization" title = "Primary action with lighter look" onclick = {handleShowVisualization} class = "slds-m-left_x-small"></lightning-button>
 
     
-    <template if:true={showPlaylists}>
+    <!-- <template if:true={showPlaylists}>
         <c-spotify-playlist-table playlists={simplifiedPlaylistArray} onplaylistselect={handlePlaylistSelect}></c-spotify-playlist-table>
-    </template>
+    </template> -->
 
-    <template if:true={showTracks}>
-        <c-spotify-tracks-list tracks={simplifiedTrackArray} ontrackselect={handleTrackSelect}></c-spotify-tracks-list>
-    </template>
+    <!--                   <template if:true = {showTracks}>
+    <c-spotify-tracks-list tracks            = {simplifiedTrackArray} ontrackselect = {handleTrackSelect}></c-spotify-tracks-list>
+    </template> -->
 
     <template              if:true={showVisualization}>
     <c-spotify-visualisation-key-distribution analysis={keyFeatures}></c-spotify-visualisation-key-distribution>

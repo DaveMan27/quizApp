@@ -60,8 +60,8 @@ export default class Spotify_Profile extends LightningElement {
         let instrumentalData = trackFeatures.audio_features.map(({ instrumentalness, id }) => ({ instrumentalness, id }));
      
         console.log('Key data: ', keyData);
-        this.keyFeatures       = this.generateKeyFrequencyJson(keyData);
-        this.instrumentalArray = this.generateInstrumentalFrequencyJson(instrumentalData);
+        this.keyFeatures       = this.generateFrequencyArray(keyData, 'key');;
+        this.instrumentalArray = this.generateFrequencyArray(instrumentalData, 'instrumentalness');
         this.showVisualization = !this.showVisualization;
         console.log('Show visualization: ', this.showVisualization);
     }
@@ -150,7 +150,32 @@ export default class Spotify_Profile extends LightningElement {
         console.log('Working function');
     }
 
-    generateKeyFrequencyJson(audioFeatures) {
+    generateFrequencyArray(audioFeatures, propertyName) {
+        // Define the mapping from integers to musical notations only if needed
+        const keyMapping = propertyName === 'key' ? {
+            0: 'C', 1: 'C#/Db', 2: 'D', 3: 'D#/Eb', 4: 'E', 5: 'F',
+            6: 'F#/Gb', 7: 'G', 8: 'G#/Ab', 9: 'A', 10: 'A#/Bb', 11: 'B'
+        } : null;
+    
+        // Count the frequency of each property value
+        const frequency = audioFeatures.reduce((acc, feature) => {
+            const value = keyMapping ? keyMapping[feature[propertyName]] : feature[propertyName];
+            acc[value] = (acc[value] || 0) + 1;
+            return acc;
+        }, {});
+    
+        // Convert the frequency object into an array of objects with 'key' and 'frequency'
+        const frequencyArray = Object.entries(frequency).map(([key, frequency]) => ({
+            key,
+            frequency
+        }));
+    
+        // Convert the array to a JSON string
+        return JSON.stringify(frequencyArray, null, 2);
+    }
+    
+
+    /*generateKeyFrequencyJson(audioFeatures) {
         // Define the mapping from integers to musical notations
         const keyMapping = {
             0: 'C', 1: 'C#/Db', 2: 'D', 3: 'D#/Eb', 4: 'E', 5: 'F',
@@ -189,7 +214,9 @@ export default class Spotify_Profile extends LightningElement {
 
           // Convert the array to a JSON string
         return JSON.stringify(instrumentalFrequencyArray, null, 2);
-    }
+    }*/
+
+    
     
     // Example usage
     

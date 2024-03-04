@@ -26,7 +26,7 @@ export default class Spotify_Profile extends LightningElement {
            comboBoxPlaylistArray   = [];
     isLoading;
     columns = [
-        { label: 'Song', fieldName: 'external_link', type : 'url', typeAttributes: { label: { fieldName: 'name' }, target: '_blank' } },
+        { label: 'Song', fieldName: 'song_external_link', type : 'url', typeAttributes: { label: { fieldName: 'name' }, target: '_blank' } },
         { label: 'Artists', fieldName: 'artist_external_link', type : 'url', typeAttributes: { label: { fieldName: 'artists_nonArray' }, target: '_blank' } },
         { label: 'Album', fieldName: 'album_external_link', type: 'url', typeAttributes: { label: { fieldName: 'album' }, target: '_blank' } }        
     ];
@@ -146,8 +146,8 @@ export default class Spotify_Profile extends LightningElement {
                 album_href: album.href, // Include the album's href
                 album_external_link: album.external_urls.spotify, // Include the album's external link
                 id,
-                external_link,
-                href
+                song_external_link: external_link,
+                song_href: href
             };
         });
     

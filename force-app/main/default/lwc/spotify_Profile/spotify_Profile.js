@@ -11,7 +11,8 @@ export default class Spotify_Profile extends LightningElement {
            userProfile             = {};             // Stores user profile information
            //userPlaylists           = {};             // Stores user playlists information
     @track simplifiedPlaylistArray = [];             // Tracks changes to the playlist array for reactivity
-           showPlaylists           = false;          // Controls the visibility of playlist UI section
+           showPlaylist           = false;          // Controls the visibility of playlist UI section
+           
            showTracks              = false;          // Controls the visibility of tracks UI section
     @track simplifiedTrackArray    = [];             // Tracks changes to the track array for reactivity
            trackIds                = '';             // Stores track IDs for re-use in audio analysis callout
@@ -22,11 +23,16 @@ export default class Spotify_Profile extends LightningElement {
            instrumentalArray       = [];
            keyFeatures             = [];
            keyTempoArray           = [];
-           comboBoxPlaylistArray   = [];    
-           columns                 = [
-        { label: 'Name', fieldName: 'name' },
-        { label: 'Link', fieldName: 'link', type: 'url' }
-    ];    
+           comboBoxPlaylistArray   = [];
+    isLoading;
+    columns = [
+        { label: 'Song', fieldName: 'external_link', type : 'url', typeAttributes: { label: { fieldName: 'name' }, target: '_blank' } },
+        { label: 'Artists', fieldName: 'artist_external_link', type : 'url', typeAttributes: { label: { fieldName: 'artists_nonArray' }, target: '_blank' } },
+        { label: 'Album', fieldName: 'album_external_link', type: 'url', typeAttributes: { label: { fieldName: 'album' }, target: '_blank' } }        
+    ];
+    
+        
+        
     value = 'inProgress';
 
 
@@ -53,7 +59,9 @@ export default class Spotify_Profile extends LightningElement {
     }
 
     async handleComboBoxChange(event) {
-              this.multiTrackAnalysisArray = [];
+        this.isLoading = true;
+        
+        this.multiTrackAnalysisArray = [];
               this.showTracks              = false;
         const itemId                       = event.detail.value;
         console.log(`Clicked item ID: ${itemId}`);
@@ -70,6 +78,10 @@ export default class Spotify_Profile extends LightningElement {
                 console.log('Track features: ', trackFeatures);            
                 this.simplifiedTrackArray = this.loadSimplifiedTrackArray(tracksList);
                 console.log('Simplified track Array: ', JSON.parse(JSON.stringify(this.simplifiedTrackArray)));
+                setTimeout(() => {
+                    this.isLoading = false
+                  }, 1000);
+                this.showPlaylist = true;
             }
         } catch (error) {
             console.error('Error getting user profile', error);
@@ -86,36 +98,9 @@ export default class Spotify_Profile extends LightningElement {
             console.error('Error getting user profile', error);
         }
     }
-
-    // Fetch and process user playlists
-    /*async handleGetPlaylists() {
-        try {
-            this.userPlaylists = await getUserPlaylists({ username: this.username});
-            this.userPlaylists = JSON.parse(this.userPlaylists);
-            console.log(this.userPlaylists);
-        } catch (error) {
-            console.error('Error getting user profile', error);
-        }
-
-        this.handlePlaylistArray();
-        if (this.simplifiedPlaylistArray.length > 0)            
-            this.showPlaylists = true;
-    }*/
-
     
-        
-
     handleShowVisualization() {
-        this.showVisualization = !this.showVisualization;
-        // let trackFeatures = await getMultiTrackAudioFeatures({ trackIDs: this.trackIDs });
-        //     trackFeatures = JSON.parse(trackFeatures);
-        // console.log('Track features: ', trackFeatures);
-     
-        // this.keyTempoArray = this.createKeyTempArray(trackFeatures.audio_features);
-        // console.log('Key features: ', this.keyFeatures);
-        // console.log('Instrumental array: ', this.instrumentalArray);
-        // console.log('Key tempo array: ', this.keyTempoArray);
-        //console.log('Show visualization: ', this.showVisualization);
+        this.showVisualization = !this.showVisualization;       
     }
 
     /*
@@ -135,29 +120,40 @@ export default class Spotify_Profile extends LightningElement {
         this.keyFeatures = this.generateFrequencyArray(keyData, 'key');
         console.log('Key features: ', this.keyFeatures);
     }
-
+    
     loadSimplifiedTrackArray(tracksList) {
         let trackArray = tracksList.items.map(({ track }) => {
+            // Destructure the required properties from the track, including nested destructuring for external_urls
             const { name, artists, album, id, external_urls: { spotify: external_link }, href } = track;
+            
+            // Extract the first artist's href and external link
+            const artist_href = artists[0].href;
+            const artist_external_link = artists[0].external_urls.spotify;
+            
+            // Map through artists to get an array of artist names
             const artistNames = artists.map(artist => artist.name);
+            
+            // Join artist names to create a string representation
             const artists_nonArray = artistNames.join(', ');
+            
             return {
                 name,
                 artists: artistNames,
                 artists_nonArray,
+                artist_href, // Include the first artist's href
+                artist_external_link, // Include the first artist's external link
                 album: album.name,
+                album_href: album.href, // Include the album's href
+                album_external_link: album.external_urls.spotify, // Include the album's external link
                 id,
                 external_link,
                 href
             };
         });
-
+    
         return trackArray;
-
     }
-
-
-
+    
     // Process playlists data to simplify and prepare for display
     handlePlaylistArray() {
         this.simplifiedPlaylistArray = this.userPlaylists.items.map(({ href, name, id, images }) => ({
@@ -170,49 +166,6 @@ export default class Spotify_Profile extends LightningElement {
           console.log(JSON.parse(JSON.stringify(this.simplifiedPlaylistArray)));
     }
 
-    /*async handlePlaylistSelect(event) {
-        this.multiTrackAnalysisArray = [];
-        this.showTracks = false;
-        const itemId = event.detail;
-        console.log(`Clicked item ID: ${itemId}`);
-        try {
-            /*let playlist = await openPlaylist({ playListID: itemId });
-                playlist = JSON.parse(playlist);            
-            console.log('Opening playlist: ', playlist);
-            let tracksList = await getPlaylistTracks({ playListID: itemId });
-            tracksList = JSON.parse(tracksList);
-            console.log('Tracks list: ', tracksList);
-            this.trackIDs   = tracksList.items.map((item) => item.track.id).join(',');
-            console.log(`Track IDs: ${this.trackIDs}`);
-            
-            console.log('Tracks: ', tracksList);
-            if (tracksList.total > 0) {
-                this.simplifiedTrackArray = tracksList.items.map(({ track }) => {
-                    const { name, artists, album, id, external_urls: { spotify: external_link }, href } = track;
-  // Combine the artist names in a single iteration
-                    const artistNames = artists.map(artist => artist.name);                    
-                    const artists_nonArray = artistNames.join(', ');
-                    return {
-                        name,
-                        artists: artistNames,
-                        artists_nonArray,
-                        album: album.name,
-                        id,
-                        external_link,
-                        href
-                    };
-                });
-                                                                
-                this.showTracks = true;
-                console.log(JSON.parse(JSON.stringify(this.simplifiedTrackArray)));
-                this.generateAudioAnalysisArray(tracksList);
-                console.log('Multi item analysis array: ', this.multiTrackAnalysisArray);
-            }
-            console.log('Tracks: ', tracksList);
-        } catch (error) {
-            console.error('Error getting user profile', error);
-        }
-    }*/
 
     async handleTrackSelect(event) {
         const trackId = event.detail;

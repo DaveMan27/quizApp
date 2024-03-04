@@ -6,12 +6,10 @@
     placeholder="Select Playlist"
     options={options}
     onchange={handleComboBoxChange} ></lightning-combobox>
-    <p>Selected value is: {value}</p>
 
 
     
-    <lightning-button variant = "brand-outline" label = "Get Profile" title   = "Primary action with lighter look" onclick = {handleGetProfile} class   = "slds-m-left_x-small"></lightning-button>
-    <!-- <lightning-button variant = "brand-outline" label = "Get Playlists" title = "Primary action with lighter look" onclick = {handleGetPlaylists} class = "slds-m-left_x-small"></lightning-button> -->
+    <!-- <lightning-button variant = "brand-outline" label = "Get Profile" title   = "Primary action with lighter look" onclick = {handleGetProfile} class   = "slds-m-left_x-small"></lightning-button> -->
     <lightning-button variant = "brand-outline" label = "Show Visualization" title = "Primary action with lighter look" onclick = {handleShowVisualization} class = "slds-m-left_x-small"></lightning-button>
 
     
@@ -23,17 +21,17 @@
     <c-spotify-tracks-list tracks            = {simplifiedTrackArray} ontrackselect = {handleTrackSelect}></c-spotify-tracks-list>
     </template> -->
 
-    <template              if:true={showVisualization}>
+    <!-- <template              if:true={showVisualization}>
     <c-spotify-visualisation-key-distribution analysis={keyFeatures}></c-spotify-visualisation-key-distribution>
     </template>
 
     <template                                 if:true  = {showVisualization}>
     <c-spotify-visualisation-key-distribution analysis = {instrumentalArray}></c-spotify-visualisation-key-distribution>
-    </template>
+    </template> -->
 <!-- SpotifyVisualisationBoxplot -->
-    <template                                 if:true  = {showVisualization}>
+    <!-- <template                                 if:true  = {showVisualization}>
         <c-spotify-visualisation-boxplot analysis = {keyTempoArray}></c-spotify-visualisation-boxplot>
-        </template>
+        </template> -->
 
 
     

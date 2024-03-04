@@ -9,7 +9,7 @@ import getMultiTrackAudioFeatures from '@salesforce/apex/Spotify_lwcController.g
 export default class Spotify_Profile extends LightningElement {
 
            userProfile             = {};             // Stores user profile information
-           userPlaylists           = {};             // Stores user playlists information
+           //userPlaylists           = {};             // Stores user playlists information
     @track simplifiedPlaylistArray = [];             // Tracks changes to the playlist array for reactivity
            showPlaylists           = false;          // Controls the visibility of playlist UI section
            showTracks              = false;          // Controls the visibility of tracks UI section
@@ -34,50 +34,43 @@ export default class Spotify_Profile extends LightningElement {
         return this.comboBoxPlaylistArray;
     }
 
-    connectedCallback() {
-        this.comboBoxPlaylistArray = this.handleComboboxPlaylist();
+    async connectedCallback() {
+        await this.handleComboboxPlaylist();
+        console.log('ComboBox array: ', this.comboBoxPlaylistArray);
+    }
+
+    async handleComboboxPlaylist() {
+        try {
+            let userPlaylists = await getUserPlaylists({ username: this.username });
+            userPlaylists = JSON.parse(userPlaylists);
+            this.comboBoxPlaylistArray = userPlaylists.items.map(({ name, id }) => ({ label: name, value: id }));
+
+        } catch (error) {
+            console.error('Error getting user profile', error);
+        }
+
+        return this.comboBoxPlaylistArray;
     }
 
     async handleComboBoxChange(event) {
-              //this.value                   = event.detail.value;
               this.multiTrackAnalysisArray = [];
               this.showTracks              = false;
         const itemId                       = event.detail.value;
         console.log(`Clicked item ID: ${itemId}`);
         try {
-            /*let playlist = await openPlaylist({ playListID: itemId });
-                playlist = JSON.parse(playlist);            
-            console.log('Opening playlist: ', playlist);*/
             let tracksList = await getPlaylistTracks({ playListID: itemId });
             tracksList = JSON.parse(tracksList);
             console.log('Tracks list: ', tracksList);
-            this.trackIDs   = tracksList.items.map((item) => item.track.id).join(',');
-            console.log(`Track IDs: ${this.trackIDs}`);
             
-            console.log('Tracks: ', tracksList);
-            if (tracksList.total > 0) {
-                this.simplifiedTrackArray = tracksList.items.map(({ track }) => {
-                    const { name, artists, album, id, external_urls: { spotify: external_link }, href } = track;
-  // Combine the artist names in a single iteration
-                    const artistNames = artists.map(artist => artist.name);                    
-                    const artists_nonArray = artistNames.join(', ');
-                    return {
-                        name,
-                        artists: artistNames,
-                        artists_nonArray,
-                        album: album.name,
-                        id,
-                        external_link,
-                        href
-                    };
-                });
-                                                                
-                this.showTracks = true;
-                console.log(JSON.parse(JSON.stringify(this.simplifiedTrackArray)));
-                this.generateAudioAnalysisArray(tracksList);
-                console.log('Multi item analysis array: ', this.multiTrackAnalysisArray);
+            if (tracksList.items.length > 0) {
+                this.trackIDs = tracksList.items.map((item) => item.track.id).join(',');            
+                console.log(`Track IDs: ${this.trackIDs}`);
+                let trackFeatures = await getMultiTrackAudioFeatures({ trackIDs: this.trackIDs });
+                trackFeatures = JSON.parse(trackFeatures);
+                console.log('Track features: ', trackFeatures);            
+                this.simplifiedTrackArray = this.loadSimplifiedTrackArray(tracksList);
+                console.log('Simplified track Array: ', JSON.parse(JSON.stringify(this.simplifiedTrackArray)));
             }
-            console.log('Tracks: ', tracksList);
         } catch (error) {
             console.error('Error getting user profile', error);
         }
@@ -95,7 +88,7 @@ export default class Spotify_Profile extends LightningElement {
     }
 
     // Fetch and process user playlists
-    async handleGetPlaylists() {
+    /*async handleGetPlaylists() {
         try {
             this.userPlaylists = await getUserPlaylists({ username: this.username});
             this.userPlaylists = JSON.parse(this.userPlaylists);
@@ -107,39 +100,62 @@ export default class Spotify_Profile extends LightningElement {
         this.handlePlaylistArray();
         if (this.simplifiedPlaylistArray.length > 0)            
             this.showPlaylists = true;
-    }
+    }*/
 
-    async handleComboboxPlaylist() {
-        try {
-            this.userPlaylists = await getUserPlaylists({ username: this.username });
-            this.userPlaylists = JSON.parse(this.userPlaylists);
-            this.comboBoxPlaylistArray = this.userPlaylists.items.map(({ name, id }) => ({ label: name, value: id }));
-
-        } catch (error) {
-            console.error('Error getting user profile', error);
-        }
-
-        return this.comboBoxPlaylistArray;
-    }
+    
         
 
-    async handleShowVisualization() {
-        let trackFeatures = await getMultiTrackAudioFeatures({ trackIDs: this.trackIDs });
-            trackFeatures = JSON.parse(trackFeatures);
-        console.log('Track features: ', trackFeatures);
-        let keyData          = trackFeatures.audio_features.map(({ key, id }) => ({ key, id }));
-        let instrumentalData = trackFeatures.audio_features.map(({ instrumentalness, id }) => ({ instrumentalness, id }));
-     
-        console.log('Key data: ', keyData);
-        this.keyFeatures       = this.generateFrequencyArray(keyData, 'key');
-        this.instrumentalArray = this.generateFrequencyArray(instrumentalData, 'instrumentalness');
-        this.keyTempoArray = this.createKeyTempArray(trackFeatures.audio_features);
-        console.log('Key features: ', this.keyFeatures);
-        console.log('Instrumental array: ', this.instrumentalArray);
-        console.log('Key tempo array: ', this.keyTempoArray);
+    handleShowVisualization() {
         this.showVisualization = !this.showVisualization;
-        console.log('Show visualization: ', this.showVisualization);
+        // let trackFeatures = await getMultiTrackAudioFeatures({ trackIDs: this.trackIDs });
+        //     trackFeatures = JSON.parse(trackFeatures);
+        // console.log('Track features: ', trackFeatures);
+     
+        // this.keyTempoArray = this.createKeyTempArray(trackFeatures.audio_features);
+        // console.log('Key features: ', this.keyFeatures);
+        // console.log('Instrumental array: ', this.instrumentalArray);
+        // console.log('Key tempo array: ', this.keyTempoArray);
+        //console.log('Show visualization: ', this.showVisualization);
     }
+
+    /*
+        Functions to process data for visualisations  
+    */
+
+    loadIntstrumentalData(trackFeatures) {
+        let instrumentalData = trackFeatures.audio_features.map(({ instrumentalness, id }) => ({ instrumentalness, id }));
+        console.log('Instrumental data: ', instrumentalData);
+        this.instrumentalArray = this.generateFrequencyArray(instrumentalData, 'instrumentalness');
+        console.log('Instrumental array: ', this.instrumentalArray);
+    }
+
+    loadKeyData(trackFeatures) {
+        let keyData = trackFeatures.audio_features.map(({ key, id }) => ({ key, id }));
+        console.log('Key data: ', keyData);
+        this.keyFeatures = this.generateFrequencyArray(keyData, 'key');
+        console.log('Key features: ', this.keyFeatures);
+    }
+
+    loadSimplifiedTrackArray(tracksList) {
+        let trackArray = tracksList.items.map(({ track }) => {
+            const { name, artists, album, id, external_urls: { spotify: external_link }, href } = track;
+            const artistNames = artists.map(artist => artist.name);
+            const artists_nonArray = artistNames.join(', ');
+            return {
+                name,
+                artists: artistNames,
+                artists_nonArray,
+                album: album.name,
+                id,
+                external_link,
+                href
+            };
+        });
+
+        return trackArray;
+
+    }
+
 
 
     // Process playlists data to simplify and prepare for display
@@ -154,7 +170,7 @@ export default class Spotify_Profile extends LightningElement {
           console.log(JSON.parse(JSON.stringify(this.simplifiedPlaylistArray)));
     }
 
-    async handlePlaylistSelect(event) {
+    /*async handlePlaylistSelect(event) {
         this.multiTrackAnalysisArray = [];
         this.showTracks = false;
         const itemId = event.detail;
@@ -162,7 +178,7 @@ export default class Spotify_Profile extends LightningElement {
         try {
             /*let playlist = await openPlaylist({ playListID: itemId });
                 playlist = JSON.parse(playlist);            
-            console.log('Opening playlist: ', playlist);*/
+            console.log('Opening playlist: ', playlist);
             let tracksList = await getPlaylistTracks({ playListID: itemId });
             tracksList = JSON.parse(tracksList);
             console.log('Tracks list: ', tracksList);
@@ -196,7 +212,7 @@ export default class Spotify_Profile extends LightningElement {
         } catch (error) {
             console.error('Error getting user profile', error);
         }
-    }
+    }*/
 
     async handleTrackSelect(event) {
         const trackId = event.detail;
@@ -240,9 +256,9 @@ export default class Spotify_Profile extends LightningElement {
         }, {});
     
         // Convert the frequency object into an array of objects with 'key' and 'frequency'
-        const frequencyArray = Object.entries(frequency).map(([key, frequency]) => ({
-            key,
-            frequency
+        const frequencyArray = Object.entries(frequency).map(([key, freq]) => ({
+            [propertyName]: key, // Use computed property name here
+            frequency: freq
         }));
     
         // Convert the array to a JSON string

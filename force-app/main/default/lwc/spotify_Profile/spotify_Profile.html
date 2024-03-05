@@ -1,16 +1,17 @@
 <template>
     <lightning-combobox
-    name="progress"
-    label="Playlists"
-    value={value}
-    placeholder="Select Playlist"
-    options={options}
-    onchange={handleComboBoxChange} ></lightning-combobox>
+    name        = "progress"
+    label       = "Playlists"
+    value       = {value}
+    placeholder = "Select Playlist"
+    options     = {comboBoxPlaylistArray}
+    onchange    = {handleComboBoxChange} ></lightning-combobox>   
 
+     
 
-    
-    <!--              <lightning-button variant = "brand-outline" label = "Get Profile" title        = "Primary action with lighter look" onclick = {handleGetProfile} class        = "slds-m-left_x-small"></lightning-button> -->
-    <lightning-button variant                   = "brand-outline" label = "Show Visualization" title = "Primary action with lighter look" onclick = {handleShowVisualization} class = "slds-m-left_x-small"></lightning-button>
+    <div              class                     = "slds-m-vertical_medium">
+        <lightning-button variant                   = "brand-outline" label = "Show Visualization" title = "Primary action with lighter look" onclick = {handleShowVisualization} class = "slds-m-left_x-small"></lightning-button>
+    </div>
     
     <template if:true={showPlaylist}>
         <div style="height: 500px;">
@@ -19,11 +20,33 @@
                     data      = {simplifiedTrackArray}
                     columns   = {columns}
                     hide-checkbox-column
-                    show-row-number-column
-                    is-loading={isLoading}>
+                    show-row-number-column>
             </lightning-datatable>
         </div>
     </template>
+
+    <template if:true={showPlaylist}><table class = "slds-table slds-table_cell-buffer slds-table_bordered">
+        <thead>
+            <tr       class    = "slds-line-height_reset">
+            <template for:each = {columns} for:item    = "col">
+            <th       key      = {col.fieldName} scope = "col">
+                        {col.label}
+                    </th>
+                </template>
+            </tr>
+        </thead>
+        <tbody>
+            <template for:each={data} for:item="row">
+                <tr key={row.id} class="slds-hint-parent">
+                    <template for:each={row.displayValues} for:item="value" for:index="index">
+                        <td key = {row.id}>
+                            {value}
+                        </td>
+                    </template>
+                </tr>
+            </template>
+        </tbody>
+    </table></template>
 
     
     <!-- <template if:true={showPlaylists}>
@@ -34,20 +57,22 @@
     <c-spotify-tracks-list tracks            = {simplifiedTrackArray} ontrackselect = {handleTrackSelect}></c-spotify-tracks-list>
     </template> -->
 
-    <!-- <template              if:true={showVisualization}>
-    <c-spotify-visualisation-key-distribution analysis={keyFeatures}></c-spotify-visualisation-key-distribution>
-    </template>
-
     <template                                 if:true  = {showVisualization}>
+    <c-spotify-visualisation-key-distribution analysis = {keyFeatures}></c-spotify-visualisation-key-distribution>
+
+    </template>
+ 
+    <!-- <template                                 if:true  = {showVisualization}>
     <c-spotify-visualisation-key-distribution analysis = {instrumentalArray}></c-spotify-visualisation-key-distribution>
-    </template> -->
+    </template>  -->
 <!-- SpotifyVisualisationBoxplot -->
     <!-- <template                                 if:true  = {showVisualization}>
         <c-spotify-visualisation-boxplot analysis = {keyTempoArray}></c-spotify-visualisation-boxplot>
         </template> -->
 
 
-    
+        <!-- <lightning-button variant = "brand-outline" label = "Get Profile" title = "Primary action with lighter look" onclick = {handleGetProfile} class = "slds-m-left_x-small"></lightning-button> -->
+
     
 
 </template>

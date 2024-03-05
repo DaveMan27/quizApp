@@ -24,6 +24,10 @@ export default class Spotify_Profile extends LightningElement {
            keyFeatures             = [];
            keyTempoArray           = [];
            comboBoxPlaylistArray   = [];
+           data                    = [];
+           options                 = [];
+           selectedOption          = '';
+      //isLoading = true;
     isLoading;
     columns = [
         { label: 'Song', fieldName: 'song_external_link', type : 'url', typeAttributes: { label: { fieldName: 'name' }, target: '_blank' } },
@@ -36,8 +40,13 @@ export default class Spotify_Profile extends LightningElement {
     value = 'inProgress';
 
 
-    get options() {
-        return this.comboBoxPlaylistArray;
+    loadData() {
+        return this.simplifiedTrackArray.map(row => {
+            return {
+                id: row.id,
+                displayValues: this.columns.map(col => row[col.fieldName])
+            };
+        });
     }
 
     async connectedCallback() {
@@ -59,8 +68,7 @@ export default class Spotify_Profile extends LightningElement {
     }
 
     async handleComboBoxChange(event) {
-        this.isLoading = true;
-        
+        this.showVisualization = false;
         this.multiTrackAnalysisArray = [];
               this.showTracks              = false;
         const itemId                       = event.detail.value;
@@ -78,9 +86,13 @@ export default class Spotify_Profile extends LightningElement {
                 console.log('Track features: ', trackFeatures);            
                 this.simplifiedTrackArray = this.loadSimplifiedTrackArray(tracksList);
                 console.log('Simplified track Array: ', JSON.parse(JSON.stringify(this.simplifiedTrackArray)));
-                setTimeout(() => {
-                    this.isLoading = false
-                  }, 1000);
+                this.data = this.loadData();
+                console.log('Data: ', this.data);
+                
+                //Generate Data for Visualizations
+                this.loadKeyData(trackFeatures);
+                this.loadInstrumentalData(trackFeatures);
+                
                 this.showPlaylist = true;
             }
         } catch (error) {
@@ -100,6 +112,7 @@ export default class Spotify_Profile extends LightningElement {
     }
     
     handleShowVisualization() {
+        
         this.showVisualization = !this.showVisualization;       
     }
 
@@ -107,7 +120,7 @@ export default class Spotify_Profile extends LightningElement {
         Functions to process data for visualisations  
     */
 
-    loadIntstrumentalData(trackFeatures) {
+    loadInstrumentalData(trackFeatures) {
         let instrumentalData = trackFeatures.audio_features.map(({ instrumentalness, id }) => ({ instrumentalness, id }));
         console.log('Instrumental data: ', instrumentalData);
         this.instrumentalArray = this.generateFrequencyArray(instrumentalData, 'instrumentalness');

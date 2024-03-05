@@ -30,10 +30,12 @@ export default class Spotify_Profile extends LightningElement {
       //isLoading = true;
     isLoading;
     columns = [
-        { label: 'Song', fieldName: 'song_external_link', type : 'url', typeAttributes: { label: { fieldName: 'name' }, target: '_blank' } },
-        { label: 'Artists', fieldName: 'artist_external_link', type : 'url', typeAttributes: { label: { fieldName: 'artists_nonArray' }, target: '_blank' } },
-        { label: 'Album', fieldName: 'album_external_link', type: 'url', typeAttributes: { label: { fieldName: 'album' }, target: '_blank' } }        
+        { label: 'Track #', fieldName: 'counter', type: 'number' },
+        { label: 'Song', fieldName: 'song_external_link', type: 'url', typeAttributes: { label: { fieldName: 'name' }, target: '_blank' } },
+        { label: 'Artists', fieldName: 'artist_external_link', type: 'url', typeAttributes: { label: { fieldName: 'artists_nonArray' }, target: '_blank' } },
+        { label: 'Album', fieldName: 'album_external_link', type: 'url', typeAttributes: { label: { fieldName: 'album' }, target: '_blank' } }
     ];
+    
     
         
         
@@ -41,13 +43,30 @@ export default class Spotify_Profile extends LightningElement {
 
 
     loadData() {
-        return this.simplifiedTrackArray.map(row => {
+        return this.simplifiedTrackArray.map((row, index) => {
             return {
                 id: row.id,
-                displayValues: this.columns.map(col => row[col.fieldName])
+                // Add a counter value based on the track's index
+                counter: index + 1,
+                displayValues: this.columns.map(col => {
+                    if (col.type === 'url') {
+                        return {
+                            url: row[col.fieldName],
+                            label: row[col.typeAttributes.label.fieldName],
+                            target: col.typeAttributes.target
+                        };
+                    } else if (col.fieldName === 'counter') {
+                        // Handle the counter as a special case
+                        return { label: `${index + 1}` };
+                    } else {
+                        return { label: row[col.fieldName] };
+                    }
+                })
             };
         });
     }
+    
+    
 
     async connectedCallback() {
         await this.handleComboboxPlaylist();

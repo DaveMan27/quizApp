@@ -25,7 +25,7 @@ export default class QuizApp extends LightningElement {
         },
         {
             id:"Question3",
-            question:"WHich one of the following is not a directive?",
+            question:"WHich one of the following is NOT a directive?",
             answers:{
                 a:"for:each",
                 b:"if:true",

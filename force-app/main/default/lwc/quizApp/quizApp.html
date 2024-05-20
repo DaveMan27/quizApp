@@ -35,14 +35,14 @@
                     variant="brand" 
                     title="Rest" 
                     type="reset" 
-                    label="Reset" 
+                    label="Reset"
                     class="slds-m-around_small"
                     onclick={resetHandler}>
                 </lightning-button>
 
             </form>
             <template if:true={isSubmitted}>    
-                <div class={isScoredFull}>You have Scored {correctAnswers} out of {myQuestions.length}</div>
+                <div class={isScoredFull}>You have scored {correctAnswers} out of {myQuestions.length}</div>
             </template>
         </div>
     </lightning-card>
